@@ -14,8 +14,8 @@
 */
 
 include { MINI_URANUS_JUST_BWAMEM  } from './workflows/mini_uranus_just_bwamem'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_mini_uranus_just_bwamem_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_mini_uranus_just_bwamem_pipeline'
+/// include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_mini_uranus_just_bwamem_pipeline'
+/// include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_mini_uranus_just_bwamem_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -27,8 +27,8 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_mini
 //
 workflow EASTGENOMICS_MINI_URANUS_JUST_BWAMEM {
 
-    take:
-    samplesheet // channel: samplesheet read in from --input
+  ///  take:
+  ///  samplesheet // channel: samplesheet read in from --input
 
     main:
 
@@ -36,7 +36,7 @@ workflow EASTGENOMICS_MINI_URANUS_JUST_BWAMEM {
     // WORKFLOW: Run pipeline
     //
     MINI_URANUS_JUST_BWAMEM (
-        samplesheet
+       /// samplesheet
     )
 }
 /*
@@ -51,30 +51,30 @@ workflow {
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
-    PIPELINE_INITIALISATION (
-        params.version,
-        params.validate_params,
-        params.monochrome_logs,
-        args,
-        params.outdir,
-        params.input
-    )
+///    PIPELINE_INITIALISATION (
+///        params.version,
+///        params.validate_params,
+///        params.monochrome_logs,
+///        args,
+///        params.outdir,
+///        params.input
+///    )
 
     //
     // WORKFLOW: Run main workflow
     //
     EASTGENOMICS_MINI_URANUS_JUST_BWAMEM (
-        PIPELINE_INITIALISATION.out.samplesheet
+        //PIPELINE_INITIALISATION.out.samplesheet
     )
     //
     // SUBWORKFLOW: Run completion tasks
     //
-    PIPELINE_COMPLETION (
-        params.outdir,
-        params.monochrome_logs,
-        
-        
-    )
+///    PIPELINE_COMPLETION (
+///        params.outdir,
+///        params.monochrome_logs,
+///        
+///        
+///    )
 }
 
 /*
