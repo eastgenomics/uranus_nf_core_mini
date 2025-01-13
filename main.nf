@@ -38,6 +38,7 @@ workflow EASTGENOMICS_MINI_URANUS_JUST_BWAMEM {
     MINI_URANUS_JUST_BWAMEM (
        /// samplesheet
     )
+    
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

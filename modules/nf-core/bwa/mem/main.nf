@@ -9,7 +9,7 @@ process BWA_MEM {
 
     input:
     tuple val(meta) , path(reads)
-    path(index)//tuple val(meta2), path(index)
+    tuple val(meta2), path(index)
     tuple val(meta3), path(fasta)
     val   sort_bam
 
@@ -35,7 +35,7 @@ process BWA_MEM {
                     "bam"
     def reference = fasta && extension=="cram"  ? "--reference ${fasta}" : ""
     if (!fasta && extension=="cram") error "Fasta reference is required for CRAM output"
-      """
+    """
     INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
 
     bwa mem \\
@@ -43,7 +43,7 @@ process BWA_MEM {
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
-        | samtools view -h -T $fasta --threads $task.cpus -o ${prefix}.bam -
+        | samtools $samtools_command $args2 ${reference} --threads $task.cpus -o ${prefix}.${extension} -
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
