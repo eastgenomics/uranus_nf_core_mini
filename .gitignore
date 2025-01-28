@@ -6,4 +6,16 @@ results/
 testing/
 testing*
 *.pyc
+*.bam
+*.bai
+*.fa
+*.gz
+*.tbi
+*.lst
+*.bed
+*.tar
+*.fai
+*.vcf
+*.vcf.gz
+*.tbi
 null/

@@ -1,0 +1,152 @@
+nextflow run main.nf -profile laptop -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--fasta '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--tumour '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/tumour_bamfile_markdup.bam' \
+--normal '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/TA2_S59_L008_tumor_markdup.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--genes '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/software_engineering_module/cgppindel_local/targetedRulemks.lst' 
+
+
+
+--assembly 'GRCh38' \
+--seqtype 'WGS' \
+--species 'Human'
+
+
+
+nextflow run main.nf -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--fasta '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/inputs/TA2_S59_L008_tumor_markdup.bam' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/subset.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa.fai'
+--genes '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/targetedRules.lst' \
+-profile docker,laptop
+
+
+
+
+## This is low spec run 
+
+nextflow run main.nf -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/inputs/TA2_S59_L008_tumor_markdup.bam' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normal.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa.fai' \
+--genes '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/targetedRules.lst' \
+-profile docker,laptop
+
+
+
+
+
+
+
+//minimal for nextflow:
+nextflow run main.nf -resume \
+--fasta '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/inputs/TA2_S59_L008_tumor_markdup.bam' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/131517686-24211K0015-24NGSHO35-8128-M-96527893_markdup.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa.fai' \
+--genes '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/targetedRules.lst' \
+-profile docker,laptop
+
+
+
+## this is a created bam run:
+
+nextflow run main.nf -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--fasta '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/inputs/TA2_S59_L008_tumor_markdup.bam' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/25014Q0045.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fasta.fai' \
+--genes '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/targetedRules.lst' \
+-profile docker,laptop
+
+
+
+
+
+
+
+
+
+
+
+
+## This is low spec run 
+
+nextflow run main.nf -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/TA2_S59_L008_tumor_markdup.bam' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/subset.bam' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38.no_alt_analysis_set_chr_mask21.fa.fai' \
+--genes '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/coding_unrestricted_GRCh38_myeloid_v1.0.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/normalPanel.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/simpleRepeats_sorted.bed.gz' \
+--filter '/home/raymondmiles/Desktop/Software_Development/cgppindel_bashexperiment/targetedRules.lst' \
+-profile docker,laptop
+
+
+
+
+
+
+############## current 
+
+
+
+nextflow run main.nf -resume \
+--reads '/home/raymondmiles/Desktop/Software_Development/software_module_master/*L001_R{1,2}_001_100k_reads.fastq.gz' \
+--bwa_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.bwa-index.tar' \
+--mosdepth_bed '/home/raymondmiles/Desktop/Software_Development/software_module_master/TST500C_manifest.bed' \
+--outdir '/home/raymondmiles/Desktop/Software_Development/software_module_master/output' \
+--normal '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/TA2_S59_L008_tumor_markdup_nochr.bam' \
+--normal_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/TA2_S59_L008_tumor_markdup_nochr.bam.bai' \
+--tumour '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/chr1_subset.bam' \
+--tumour_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/chr1_subset.bam.bai' \
+--genomefa '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fa' \
+--genomefa_fai '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18_noChr.fa.fai' \
+--genes '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/coding_unrestricted_GRCh38_myeloid_v1.2.bed' \
+--unmatched '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/normalPanel_withoutchr.gff3.gz' \
+--simrep '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/simpleRepeats_sorted_withoutchr.bed.gz' \
+--simrep_index '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/simpleRepeats_sorted_withoutchr.bed.gz.tbi' \
+--filter '/home/raymondmiles/Desktop/Software_Development/software_module_master/eastgenomics-mini_uranus/targetedRules.lst' \
+-profile docker,laptop
