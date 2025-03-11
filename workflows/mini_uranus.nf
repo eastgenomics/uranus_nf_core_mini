@@ -108,14 +108,6 @@ workflow MINI_URANUS {
     MOSDEPTH(ch_mosdepth_input, ch_fasta)
 
 
-    
-     
-    emit:
-        mosdepth_global = MOSDEPTH.out.global_txt
-        mosdepth_regions = MOSDEPTH.out.regions_txt
-        mosdepth_thresholds = MOSDEPTH.out.thresholds_bed
-
-
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
