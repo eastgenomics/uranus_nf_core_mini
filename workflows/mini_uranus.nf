@@ -36,13 +36,15 @@ workflow MINI_URANUS {
     Step 1: Prepare input Channels
         ch_reads
         ch_bwa_index_archive
+        ch_mosdepth_bed
         ch_fasta
     ------------------------------------------
     */
     ch_reads = Channel
         .fromFilePairs(params.reads, checkIfExists: true)
         .map { tuple -> [ [id: tuple[0]], tuple[1] ] }
-    ch_bwa_index_archive = Channel.fromPath(params.bwa_index)
+    ch_bwa_index_archive = Channel.fromPath(params.bwa_index)    
+    ch_mosdepth_bed = Channel.fromPath(params.mosdepth_bed)
     ch_fasta = Channel.value([[:], file(params.genomefa)])
 
     /*
@@ -88,13 +90,31 @@ workflow MINI_URANUS {
     */
 
     SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
-    SAMTOOLS_INDEX.out.bai.view { meta, bai -> 
-        log.info "SAMTOOLS_INDEX output: meta=${meta}, bai=${bai}"
-        return [meta, bai]
-    }
+    
+    /*
+    ------------------------------------------
+    Step 6: Run Mosdepth
+    ------------------------------------------
+    */
+
+    // Prepare inputs for mosdepth
+    ch_bam_bai = SAMTOOLS_SORT.out.bam.join(SAMTOOLS_INDEX.out.bai)
+    ch_mosdepth_input = ch_bam_bai.combine(ch_mosdepth_bed)
+        .map { meta, bam, bai, bed -> 
+            [ meta, bam, bai, bed ]
+        }
+
+    // Run MOSDEPTH
+    MOSDEPTH(ch_mosdepth_input, ch_fasta)
+
+
+    
+     
     emit:
-        bam = SAMTOOLS_SORT.out.bam
-        bai = SAMTOOLS_INDEX.out.bai
+        mosdepth_global = MOSDEPTH.out.global_txt
+        mosdepth_regions = MOSDEPTH.out.regions_txt
+        mosdepth_thresholds = MOSDEPTH.out.thresholds_bed
+
 
 }
 /*
