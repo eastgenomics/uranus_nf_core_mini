@@ -18,6 +18,57 @@ process EXTRACT_BWA_INDEX {
     """
 }
 
+process runCgpPindel {
+    tag "$tumour"
+
+    container 'quay.io/wtsicgp/cgppindel:3.9.0'
+    containerOptions "--volume ${params.project_dir}:/data_two"
+
+    // Add error strategy for potential memory issues
+    errorStrategy { task.exitStatus in [137,140] ? 'retry' : 'finish' }
+    maxRetries 1
+
+    input:
+    path genomefa
+    path genomefa_fai
+    path simrep
+    path simrep_index
+    path genes
+    path unmatched
+    path filter
+    path tumour
+    path tumour_index
+    path normal
+    path normal_index
+    val assembly
+    val seqtype
+
+    output:
+    path "*.flagged.vcf.gz", emit: flagged_vcf
+    path "*.flagged.vcf.gz.tbi", emit: vcf_index
+    publishDir '*', mode: 'copy'
+    script:
+    """
+    mkdir -p output_vcf output_vcf_with_vaf output_log temp_logs
+    ls -l ${genomefa}*
+    echo "Running in directory: \$(pwd)"
+    pindel.pl \\
+    -reference ${genomefa} \\
+    -simrep ${simrep} \\
+    -genes ${genes} \\
+    -unmatched ${unmatched} \\
+    -assembly ${assembly} \\
+    -species ${params.species} \\
+    -seqtype ${seqtype} \\
+    -filter ${filter} \\
+    -tumour ${tumour} \\
+    -normal ${normal} \\
+    -outdir .
+
+    """
+}
+
+
 include { BWA_MEM } from '../modules/nf-core/bwa/mem/main'
 include { MOSDEPTH } from '../modules/nf-core/mosdepth/main'
 include { SAMTOOLS_SORT } from '../modules/nf-core/samtools/sort/main'                                                                   
@@ -106,6 +157,53 @@ workflow MINI_URANUS {
 
     // Run MOSDEPTH
     MOSDEPTH(ch_mosdepth_input, ch_fasta)
+
+
+    /*
+    ------------------------------------------
+    Step 7: Prepare inputs for cgppindel
+    ------------------------------------------
+    */
+    ch_genomefa = Channel.fromPath(params.genomefa)
+    ch_genomefa_fai = Channel.fromPath(params.genomefa_fai)
+    ch_genes = Channel.fromPath(params.genes)
+    ch_unmatched = Channel.fromPath(params.unmatched)
+    ch_simrep = Channel.fromPath(params.simrep)
+    ch_simrep_index = Channel.fromPath(params.simrep_index)
+    ch_filter = Channel.fromPath(params.filter)
+
+
+
+    // Using the BAM and BAI files generated from the FASTQ files as the tumor sample
+    // But not in a single channel as was done for mosdepth
+    ch_tumor_bam = SAMTOOLS_SORT.out.bam.map { meta, bam -> bam }
+    ch_tumor_bai = SAMTOOLS_INDEX.out.bai.map { meta, bai -> bai }
+
+    // Channels for the normal sample BAM and BAI files
+    ch_normal_bam = Channel.fromPath(params.normal)
+    ch_normal_bai = Channel.fromPath(params.normal_index)
+
+
+    /*
+    ------------------------------------------
+    Step 8: run cgppindel
+    ------------------------------------------
+    */
+    runCgpPindel(
+        ch_genomefa,
+        ch_genomefa_fai,
+        ch_simrep,
+        ch_simrep_index,
+        ch_genes,
+        ch_unmatched,
+        ch_filter,
+        ch_tumor_bam,
+        ch_tumor_bai,
+        ch_normal_bam,
+        ch_normal_bai,
+        params.assembly,
+        params.seqtype
+    )
 
 
 }
