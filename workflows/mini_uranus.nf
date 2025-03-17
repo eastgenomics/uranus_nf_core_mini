@@ -9,17 +9,15 @@ process EXTRACT_BWA_INDEX {
     path bwa_index_archive
 
     output:
-    path "*", emit: index_files
+    path "/", emit: index_files
 
 
     script:
     """
-    dx download project-Fkb6Gkj433GVVvj73J7x8KbV:file-Gb76f204XGybZ3J6F731xkBp
     echo "DEBUG: Checking input file..."
     ls -lh $bwa_index_archive || { echo "ERROR: bwa_index_archive not found!" >&2; exit 1; }
-
     echo "DEBUG: Extracting index archive..."
-    tar -xvf ${bwa_index_archive} || { echo "ERROR: tar extraction failed!" >&2; exit 1; }
+    tar -xvf $bwa_index_archive || { echo "ERROR: tar extraction failed!" >&2; exit 1; }
     tar -xvf bwa_index_archive
     echo "DEBUG: Listing extracted files..."
     ls -lh
@@ -53,7 +51,7 @@ workflow MINI_URANUS {
     error "ERROR: Missing required parameters. Please provide --reads, --bwa_index, and --genomefa."
     }
     
-    log.info "params.reads output:  ${params.reads}"
+    log.info "params.reads:  ${params.reads}"
     log.info "params.bwa_index:  ${params.bwa_index}"
     log.info "params.genomefa:  ${params.genomefa}"
 
