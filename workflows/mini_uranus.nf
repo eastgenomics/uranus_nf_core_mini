@@ -14,13 +14,13 @@ process EXTRACT_BWA_INDEX {
 
     script:
     """
-    dx download $bwa_index_archive
+    dx download project-Fkb6Gkj433GVVvj73J7x8KbV:file-Gb76f204XGybZ3J6F731xkBp
     echo "DEBUG: Checking input file..."
     ls -lh $bwa_index_archive || { echo "ERROR: bwa_index_archive not found!" >&2; exit 1; }
 
     echo "DEBUG: Extracting index archive..."
     tar -xvf ${bwa_index_archive} || { echo "ERROR: tar extraction failed!" >&2; exit 1; }
-
+    tar -xvf bwa_index_archive
     echo "DEBUG: Listing extracted files..."
     ls -lh
     """
