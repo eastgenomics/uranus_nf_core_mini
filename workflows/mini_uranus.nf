@@ -9,7 +9,7 @@ process EXTRACT_BWA_INDEX {
     path bwa_index_archive
 
     output:
-    path "/", emit: index_files
+    path "*", emit: index_files
 
 
     script:
