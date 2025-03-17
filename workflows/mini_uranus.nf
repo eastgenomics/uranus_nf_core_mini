@@ -14,6 +14,7 @@ process EXTRACT_BWA_INDEX {
 
     script:
     """
+    dx download $bwa_index_archive
     echo "DEBUG: Checking input file..."
     ls -lh $bwa_index_archive || { echo "ERROR: bwa_index_archive not found!" >&2; exit 1; }
 
