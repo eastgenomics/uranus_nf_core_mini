@@ -39,8 +39,9 @@ workflow MINI_URANUS {
         ch_fasta
     ------------------------------------------
     */
-log.info "params.reads output:  ${params.reads}"
-
+    log.info "params.reads output:  ${params.reads}"
+    log.info "params.bwa_index:  ${params.bwa_index}"
+    log.info "params.genomefd:  ${params.genomefa}"
 
     ch_reads = Channel
         .fromFilePairs(params.reads, checkIfExists: true)
@@ -49,9 +50,10 @@ log.info "params.reads output:  ${params.reads}"
     ch_fasta = Channel.value([[:], file(params.genomefa)])
 
 
-log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
-log.info "ch_fasta:  ${ch_fasta}"
-log.info "ch_reads:  ${ch_reads}"
+
+    log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
+    log.info "ch_fasta:  ${ch_fasta}"
+    log.info "ch_reads:  ${ch_reads}"
 
     /*
     ------------------------------------------
@@ -61,6 +63,7 @@ log.info "ch_reads:  ${ch_reads}"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
     ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
+    log.info "ch_bwa_index:  ${ch_bwa_index}"
 
     /*
     ------------------------------------------
@@ -77,6 +80,7 @@ log.info "ch_reads:  ${ch_reads}"
             def new_meta = meta + [id: "${meta.id}.sorted"]
             [ new_meta, bam ]
         }
+    log.info "ch_bam_to_sort:  ${ch_bam_to_sort}"
 
     /*
     ------------------------------------------
@@ -94,6 +98,7 @@ log.info "ch_reads:  ${ch_reads}"
     Step 5: Index BAM Files with SAMTOOLS_INDEX
     ------------------------------------------
     */
+    log.info "SAMTOOLS_SORT.out.bam:  ${SAMTOOLS_SORT.out.bam}"
 
     SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
     SAMTOOLS_INDEX.out.bai.view { meta, bai -> 
