@@ -15,11 +15,9 @@ process EXTRACT_BWA_INDEX {
     script:
     """
     echo "DEBUG: Checking input file..."
-    ls -lh $bwa_index_archive || { echo "ERROR: bwa_index_archive not found!" >&2; exit 1; }
-    echo "DEBUG: Extracting index archive..."
     tar -xvf $bwa_index_archive || { echo "ERROR: tar extraction failed!" >&2; exit 1; }
-    tar -xvf bwa_index_archive
     echo "DEBUG: Listing extracted files..."
+    pwd
     ls -lh
     """
 }
@@ -72,9 +70,12 @@ workflow MINI_URANUS {
     Step 2: Extract (untar) bwa index
     ------------------------------------------
     */
+    log.info "starting extraction"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
     ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
+    log.info "extraction finished"
+
     log.info "ch_bwa_index:  ${ch_bwa_index}"
 
     /*
