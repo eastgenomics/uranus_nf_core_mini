@@ -60,10 +60,10 @@ workflow MINI_URANUS {
     ch_fasta = Channel.fromPath(params.genomefa)//Channel.value([[:], file(params.genomefa)])
 
 
-ch_bwa_index.view { index_file -> log.info "Formatted BWA Index file: ${index_file}" }
-ch_fasta.view { fasta_file -> log.info "Formatted FASTA file: ${fasta_file}" }
-ch_reads.view { read_file -> log.info "Formatted Read file: ${read_file}" }
 
+    log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
+    log.info "ch_fasta:  ${ch_fasta}"
+    log.info "ch_reads:  ${ch_reads}"
 
     /*
     ------------------------------------------
@@ -73,12 +73,12 @@ ch_reads.view { read_file -> log.info "Formatted Read file: ${read_file}" }
     log.info "starting extraction"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
-    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.flatten().map { file -> tuple([:], file) }
+    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> tuple([:], file) }
     //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
-    ch_bwa_index.view { index_file -> log.info "Extracted index file: ${index_file}" }
-
+    
     log.info "extraction finished"
 
+    log.info "ch_bwa_index:  ${ch_bwa_index}"
 
     /*
     ------------------------------------------
