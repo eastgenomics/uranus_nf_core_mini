@@ -49,21 +49,31 @@ workflow MINI_URANUS {
     error "ERROR: Missing required parameters. Please provide --reads, --bwa_index, and --genomefa."
     }
     
+    /*************************
+    
+    View Parameters
+
+    *************************/
     log.info "params.reads:  ${params.reads}"
     log.info "params.bwa_index:  ${params.bwa_index}"
     log.info "params.genomefa:  ${params.genomefa}"
 
+
+
+    //Define channels and view channels
     ch_reads = Channel
         .fromFilePairs(params.reads, checkIfExists: true)
         .map { tuple -> [ [id: tuple[0]], tuple[1] ] }
-    ch_bwa_index_archive = Channel.fromPath(params.bwa_index)
-    ch_fasta = Channel.fromPath(params.genomefa)//Channel.value([[:], file(params.genomefa)])
+        .view { "ch_reads: ${it}" } // View channel content
+    ch_bwa_index_archive = Channel
+        .fromPath(params.bwa_index)
+        .view { "ch_bwa_index_archive: ${it}" } // View channel content
+
+    ch_fasta = Channel
+        .fromPath(params.genomefa)//Channel.value([[:], file(params.genomefa)])
+        .view { "ch_fasta: ${it}" } // View channel content
 
 
-
-    log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
-    log.info "ch_fasta:  ${ch_fasta}"
-    log.info "ch_reads:  ${ch_reads}"
 
     /*
     ------------------------------------------
@@ -73,18 +83,21 @@ workflow MINI_URANUS {
     log.info "starting extraction"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
-    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> tuple([:], file) }
+    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files
+        .map { file -> tuple([:], file) }
+        .view { "ch_bwa_index: ${it}" } // View channel content
+
     //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
     
     log.info "extraction finished"
-
-    log.info "ch_bwa_index:  ${ch_bwa_index}"
 
     /*
     ------------------------------------------
     Step 3: Alignment with BWA_MEM
     ------------------------------------------
     */
+    log.info "BWA_MEM starting"
+
     BWA_MEM(
     ch_reads,
     ch_bwa_index, 
@@ -95,7 +108,9 @@ workflow MINI_URANUS {
             def new_meta = meta + [id: "${meta.id}.sorted"]
             [ new_meta, bam ]
         }
-    log.info "ch_bam_to_sort:  ${ch_bam_to_sort}"
+        .view { "ch_bam_to_sort: ${it}" } // View channel content
+
+    log.info "BWA_MEM finished running"
 
     /*
     ------------------------------------------
