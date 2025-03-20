@@ -71,6 +71,7 @@ workflow MINI_URANUS {
 
     ch_fasta = Channel
         .fromPath(params.genomefa)//Channel.value([[:], file(params.genomefa)])
+        .map { file -> [[:], file] }
         .view { "ch_fasta: ${it}" } // View channel content
 
 
@@ -84,7 +85,7 @@ workflow MINI_URANUS {
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
     ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files
-        .map { file -> tuple([:], file) }
+        .map { file -> ([:], file) } //removed tuple before round bracket
         .view { "ch_bwa_index: ${it}" } // View channel content
 
     //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
