@@ -57,8 +57,7 @@ workflow MINI_URANUS {
         .fromFilePairs(params.reads, checkIfExists: true)
         .map { tuple -> [ [id: tuple[0]], tuple[1] ] }
     ch_bwa_index_archive = Channel.fromPath(params.bwa_index).view()
-    ch_fasta = Channel.fromPath(params.genomefa)//Channel.value([[:], file(params.genomefa)])
-
+    ch_fasta = Channel.fromPath(params.genomefa).map { file -> [[:], file] }//Channel.value([[:], file(params.genomefa)])
 
 
     log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
