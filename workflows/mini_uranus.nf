@@ -9,16 +9,12 @@ process EXTRACT_BWA_INDEX {
     path bwa_index_archive
 
     output:
-    path "*", emit: index_files
+    path '*', emit: index_files
 
 
     script:
     """
-    echo "DEBUG: Checking input file..."
     tar -xvf $bwa_index_archive || { echo "ERROR: tar extraction failed!" >&2; exit 1; }
-    echo "DEBUG: Listing extracted files..."
-    pwd
-    ls -lh
     """
 }
 
@@ -60,11 +56,6 @@ workflow MINI_URANUS {
     ch_fasta = Channel.fromPath(params.genomefa).map { file -> [[:], file] }//Channel.value([[:], file(params.genomefa)])
 
 
-    log.info "ch_bwa_index_archive output:  ${ch_bwa_index_archive}"
-
-    log.info "ch_fasta:  ${ch_fasta}"
-    log.info "ch_reads:  ${ch_reads}"
-
     /*
     ------------------------------------------
     Step 2: Extract (untar) bwa index
@@ -73,12 +64,11 @@ workflow MINI_URANUS {
     log.info "starting extraction"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
-    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> tuple([:], file) }
+    ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> [[:], file] }
     //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
     
     log.info "extraction finished"
 
-    log.info "ch_bwa_index:  ${ch_bwa_index}"
 
     /*
     ------------------------------------------
@@ -95,7 +85,6 @@ workflow MINI_URANUS {
             def new_meta = meta + [id: "${meta.id}.sorted"]
             [ new_meta, bam ]
         }
-    log.info "ch_bam_to_sort:  ${ch_bam_to_sort}"
 
     /*
     ------------------------------------------
