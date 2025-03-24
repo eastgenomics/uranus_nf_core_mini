@@ -210,9 +210,6 @@ workflow MINI_URANUS {
     emit:
         bam = SAMTOOLS_SORT.out.bam
         bai = SAMTOOLS_INDEX.out.bai
-    publishDir:
-        bam into "results/bam", mode: 'copy'
-        bai into "results/bai", mode: 'copy'
 
 }
 /*
