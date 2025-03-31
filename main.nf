@@ -46,34 +46,9 @@ workflow EASTGENOMICS_MINI_URANUS {
     //bam_files = MINI_URANUS_JUST_BWAMEM.out.bam
     //bai_files = MINI_URANUS_JUST_BWAMEM.out.bai
 
-    //workflow pindel_pl ()
-//
-
-        // Prepare inputs for pindel_pl
-
 
     log.info "input prep"
 
-            //pindel_pl(
-            //take:
-//
-            //main:
-            ////unmatched: params.unmatched,
-            //genomefa: params.genomefa, //genome_ch,
-            //tumour: params.tumour,
-            //normal: params.normal,
-            //species: params.species,
-            //assembly: params.assembly,
-            //outdir: params.outdir,
-            //filter: file(params.filter),
-            //genes: tuple(file(params.genes), file("${params.genes}.tbi")),
-            //unmatched: tuple(file(params.unmatched), file("${params.unmatched}.tbi")),
-            //simrep: tuple(file(params.simrep), file("${params.simrep}.tbi")),
-            //seqtype: params.seqtype
-        //)//
-
-    //    // Run pindel_pl workflow
-// pindel_pl()
 
 }
 
@@ -113,23 +88,6 @@ workflow {
     EASTGENOMICS_MINI_URANUS (
         //PIPELINE_INITIALISATION.out.samplesheet
     )
- ///   pindel_pl(
-  ///      genomefa: params.genomefa,
-  ///      tumour: params.tumour,
-  ///      normal: params.normal,
-  ///      species: params.species,
-  ///      assembly: params.assembly,
-  ///      outdir: params.outdir,
-  ///      filter: file(params.filter),
-  ///      genes: tuple(file(params.genes), file("${params.genes}.tbi")),
-  ///      unmatched: tuple(file(params.unmatched), file("${params.unmatched}.tbi")),
-  ///      simrep: tuple(file(params.simrep), file("${params.simrep}.tbi")),
-  ///      seqtype: params.seqtype
-  ///  )
-    //
-    
-    //PINDEL_PL(channel.value(params.outdir), channel.value(params.genomefa), channel.value(params.tumour), channel.value(params.normal), channel.value(params.simrep), channel.value(params.filter), channel.value(params.genes), channel.value(params.unmatched))
-
     // SUBWORKFLOW: Run completion tasks
     //
 ///    PIPELINE_COMPLETION (

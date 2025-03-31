@@ -6,6 +6,10 @@
 
 process EXTRACT_BWA_INDEX {
     input:
+    errorStrategy 'retry'
+    maxRetries 3
+
+    input:
     path bwa_index_archive
 
     output:
@@ -20,14 +24,15 @@ process EXTRACT_BWA_INDEX {
 
 process runCgpPindel {
     tag "$tumour"
+    label 'process_high'
 
     container 'quay.io/wtsicgp/cgppindel:3.9.0'
     //containerOptions "--volume ${params.project_dir}:/data_two"
     //publishDir $params.outdir, mode: 'copy'
 
     // Add error strategy for potential memory issues
-    errorStrategy { task.exitStatus in [137,140] ? 'retry' : 'finish' }
-    maxRetries 1
+    errorStrategy { task.attempt <= 3 ? 'retry' : 'finish' }
+    maxRetries 3
 
     input:
     path genomefa
@@ -104,10 +109,19 @@ workflow MINI_URANUS {
 
     ch_reads = Channel
         .fromFilePairs(params.reads, checkIfExists: true)
+        .ifEmpty { error "No matching reads files found: ${params.reads}"}
         .map { tuple -> [ [id: tuple[0]], tuple[1] ] }
-    ch_bwa_index_archive = Channel.fromPath(params.bwa_index).view()
-    ch_fasta = Channel.fromPath(params.genomefa).map { file -> [[:], file] }//Channel.value([[:], file(params.genomefa)])
+
+    ch_bwa_index_archive = Channel.fromPath(params.bwa_index)
+        .ifEmpty { error "No matching bwa index files found: ${params.bwa_index}"}
+
+    ch_fasta = Channel.fromPath(params.genomefa)
+            .ifEmpty { error "Genome FASTA file not found: ${params.genomefa}" }
+            .map { file -> [[:], file] }
+
     ch_mosdepth_bed = Channel.fromPath(params.mosdepth_bed)
+            .ifEmpty { error "Mosdepth BED file not found: ${params.mosdepth_bed}" }
+
 
 
     /*
@@ -115,13 +129,13 @@ workflow MINI_URANUS {
     Step 2: Extract (untar) bwa index
     ------------------------------------------
     */
-    log.info "starting extraction"
+    log.info "Starting BWA index extraction"
 
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
     ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> [[:], file] }
     //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
     
-    log.info "extraction finished"
+    log.info "BWA index extraction finished"
 
 
     /*
@@ -129,6 +143,8 @@ workflow MINI_URANUS {
     Step 3: Alignment with BWA_MEM
     ------------------------------------------
     */
+    log.info "Starting BWA MEM process"
+
     BWA_MEM(
     ch_reads,
     ch_bwa_index, 
@@ -139,12 +155,15 @@ workflow MINI_URANUS {
             def new_meta = meta + [id: "${meta.id}.sorted"]
             [ new_meta, bam ]
         }
+    log.info "Finished BWA MEM process"
+
 
     /*
     ------------------------------------------
     Step 4: Sort BAM Files with SAMTOOLS_SORT
     ------------------------------------------
     */
+    log.info "Starting Samtools sorting and indexing"
     SAMTOOLS_SORT(ch_bam_to_sort, ch_fasta)
     SAMTOOLS_SORT.out.bam.view { meta, bam -> 
         log.info "SAMTOOLS_SORT output: meta=${meta}, bam=${bam}"
@@ -163,6 +182,7 @@ workflow MINI_URANUS {
         log.info "SAMTOOLS_INDEX output: meta=${meta}, bai=${bai}"
         return [meta, bai]
     }
+    log.info "Finished Samtools sorting and indexing"
 
 
 
@@ -189,14 +209,19 @@ workflow MINI_URANUS {
     ------------------------------------------
     */
     ch_genomefa = Channel.fromPath(params.genomefa)
+        .ifEmpty { error "Genome FASTA file not found: ${params.genomefa}" }
     ch_genomefa_fai = Channel.fromPath(params.genomefa_fai)
+        .ifEmpty { error "Genome FASTA index file not found: ${params.genomefa_fai}" }
     ch_genes = Channel.fromPath(params.genes)
+        .ifEmpty { error "Genes file not found: ${params.genes}" }
     ch_unmatched = Channel.fromPath(params.unmatched)
+        .ifEmpty { error "Unmatched file not found: ${params.unmatched}" }
     ch_simrep = Channel.fromPath(params.simrep)
+        .ifEmpty { error "Simrep file not found: ${params.simrep}" }
     ch_simrep_index = Channel.fromPath(params.simrep_index)
+        .ifEmpty { error "Simrep index file not found: ${params.simrep_index}" }
     ch_filter = Channel.fromPath(params.filter)
-
-
+        .ifEmpty { error "Filter file not found: ${params.filter}" }
 
     // Using the BAM and BAI files generated from the FASTQ files as the tumor sample
     // But not in a single channel as was done for mosdepth
@@ -205,7 +230,9 @@ workflow MINI_URANUS {
 
     // Channels for the normal sample BAM and BAI files
     ch_normal_bam = Channel.fromPath(params.normal)
+        .ifEmpty { error "Normal BAM file not found: ${params.normal}" }
     ch_normal_bai = Channel.fromPath(params.normal_index)
+        .ifEmpty { error "Normal BAM index file not found: ${params.normal_index}" }
 
 
     /*
@@ -237,6 +264,10 @@ workflow MINI_URANUS {
         bai = SAMTOOLS_INDEX.out.bai
 
 }
+workflow.onError {
+    log.error "Pipeline execution stopped with error: ${workflow.errorMessage}"
+}
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
