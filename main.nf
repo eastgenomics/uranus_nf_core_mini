@@ -96,8 +96,6 @@ workflow {
 ///        
 ///        
 ///    )
-log_info "Pipeline completed successfully"
-
 
 }
 
