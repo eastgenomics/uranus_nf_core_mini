@@ -24,7 +24,7 @@ process EXTRACT_BWA_INDEX {
 
 process runCgpPindel {
     tag "$tumour"
-    label 'process_high'
+    label 'cgppindel_process'
 
     container 'quay.io/wtsicgp/cgppindel:3.9.0'
     //containerOptions "--volume ${params.project_dir}:/data_two"
