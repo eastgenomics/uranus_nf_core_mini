@@ -4,6 +4,23 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+process MERGE_BAM {
+    tag "Merging BAM files"
+    
+    input:
+    tuple val(meta1), path(bam1)
+    tuple val(meta2), path(bam2)
+    
+    output:
+    tuple val(meta1), path("merged.bam")
+    
+    script:
+    """
+    samtools merge merged.bam ${bam1} ${bam2}
+    """
+}
+
+
 process EXTRACT_BWA_INDEX {
     input:
     errorStrategy 'retry'
@@ -24,7 +41,7 @@ process EXTRACT_BWA_INDEX {
 
 process runCgpPindel {
     tag "$tumour"
-    label 'cgppindel_process'
+    label 'process_high'
 
     container 'quay.io/wtsicgp/cgppindel:3.9.0'
     //containerOptions "--volume ${params.project_dir}:/data_two"
@@ -76,7 +93,8 @@ process runCgpPindel {
     """
 }
 
-include { BWA_MEM } from '../modules/nf-core/bwa/mem/main'
+include { BWA_MEM as BWA_MEM_LANE1 } from '../modules/nf-core/bwa/mem/main'
+include { BWA_MEM as BWA_MEM_LANE2 } from '../modules/nf-core/bwa/mem/main'
 include { MOSDEPTH } from '../modules/nf-core/mosdepth/main'
 include { SAMTOOLS_SORT } from '../modules/nf-core/samtools/sort/main'                                                                   
 include { SAMTOOLS_INDEX } from '../modules/nf-core/samtools/index/main'    
@@ -99,18 +117,28 @@ workflow MINI_URANUS {
     */
 
 
-     if (!params.reads || !params.bwa_index || !params.genomefa) {
-    error "ERROR: Missing required parameters. Please provide --reads, --bwa_index, and --genomefa."
-    }
+   
     
-    log.info "params.reads:  ${params.reads}"
+    log.info "params.reads1:  ${params.reads1}"
     log.info "params.bwa_index:  ${params.bwa_index}"
     log.info "params.genomefa:  ${params.genomefa}"
 
-    ch_reads = Channel
-        .fromFilePairs(params.reads, checkIfExists: true)
-        .ifEmpty { error "No matching reads files found: ${params.reads}"}
-        .map { tuple -> [ [id: tuple[0]], tuple[1] ] }
+    ch_reads_lane1 = Channel
+        .fromFilePairs(params.reads1, checkIfExists: true)
+        .ifEmpty { error "No matching reads files found: ${params.reads1}" }
+        .map { tuple -> [ [ id: tuple[0] ], tuple[1] ] }
+
+
+    ch_reads_lane2 = Channel
+        .fromFilePairs(params.reads2, checkIfExists: true)
+        .ifEmpty { error "No matching reads files found: ${params.reads2}" }
+        .map { tuple -> [ [ id: tuple[0] ], tuple[1] ] }
+
+ch_reads_lane1.view { meta, reads ->
+    log.info "Lane 1 sample ID: ${meta.id}"
+    return [meta, reads]
+}
+
 
     ch_bwa_index_archive = Channel.fromPath(params.bwa_index)
         .ifEmpty { error "No matching bwa index files found: ${params.bwa_index}"}
@@ -145,16 +173,35 @@ workflow MINI_URANUS {
     */
     log.info "Starting BWA MEM process"
 
-    BWA_MEM(
-    ch_reads,
-    ch_bwa_index, 
-    ch_fasta, 
-    false
-    )   
-    ch_bam_to_sort = BWA_MEM.out.bam.map { meta, bam ->
-            def new_meta = meta + [id: "${meta.id}.sorted"]
-            [ new_meta, bam ]
-        }
+   // BWA_MEM(
+   // ch_reads,
+   // ch_bwa_index, 
+   // ch_fasta, 
+   // false
+   // )   
+    // Run BWA_MEM separately on each lane
+    
+    BWA_MEM_LANE1(ch_reads_lane1, ch_bwa_index, ch_fasta, false)
+    BWA_MEM_LANE2(ch_reads_lane2, ch_bwa_index, ch_fasta, false)
+    //ch_reads = Channel
+    //    .fromFilePairs(params.reads, checkIfExists: true)
+    //    .map { sample_id, files -> 
+    //        def meta = [id: sample_id]
+    //        [meta, files]
+    //    }
+   
+    MERGE_BAM(BWA_MEM_LANE1.out.bam, BWA_MEM_LANE2.out.bam)
+
+    ch_bam_to_sort = MERGE_BAM.out.map { meta, bam ->
+        def new_meta = meta + [ id: "${meta.id}.sorted" ]
+        [ new_meta, bam ]
+    }
+
+
+    //ch_bam_to_sort = BWA_MEM.out.bam.map { meta, bam ->
+    //        def new_meta = meta + [id: "${meta.id}.sorted"]
+    //        [ new_meta, bam ]
+    //    }
     log.info "Finished BWA MEM process"
 
 
