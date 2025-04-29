@@ -5,24 +5,22 @@
 */
 
 process MERGE_BAM {
-    tag "Merging BAM files"
+    tag "${meta.id} - Merging BAM files"
     
     input:
-    tuple val(meta1), path(bam1)
-    tuple val(meta2), path(bam2)
+    tuple val(meta1), path(bam1), path(bam2)
     
     output:
-    tuple val(meta1), path("merged.bam")
+    tuple val(meta), path("${meta.id}.merged.bam")
     
     script:
     """
-    samtools merge merged.bam ${bam1} ${bam2}
+    samtools merge ${meta.id}.merged.bam ${bam1} ${bam2}
     """
 }
 
 
 process EXTRACT_BWA_INDEX {
-    input:
     errorStrategy 'retry'
     maxRetries 3
 
