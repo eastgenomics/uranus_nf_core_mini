@@ -5,17 +5,18 @@
 */
 
 process MERGE_BAM {
-    tag "${meta.id} - Merging BAM files"
+    tag "Merging BAM files"
     
     input:
-    tuple val(meta1), path(bam1), path(bam2)
+    tuple val(meta1), path(bam1)
+    tuple val(meta2), path(bam2)
     
     output:
-    tuple val(meta), path("${meta.id}.merged.bam")
+    tuple val(meta1), path("merged.bam")
     
     script:
     """
-    samtools merge ${meta.id}.merged.bam ${bam1} ${bam2}
+    samtools merge merged.bam ${bam1} ${bam2}
     """
 }
 
@@ -42,8 +43,6 @@ process runCgpPindel {
     label 'process_high'
 
     container 'quay.io/wtsicgp/cgppindel:3.9.0'
-    //containerOptions "--volume ${params.project_dir}:/data_two"
-    //publishDir $params.outdir, mode: 'copy'
 
     // Add error strategy for potential memory issues
     errorStrategy { task.attempt <= 3 ? 'retry' : 'finish' }
@@ -113,30 +112,22 @@ workflow MINI_URANUS {
         ch_fasta
     ------------------------------------------
     */
-
-
-   
     
     log.info "params.reads1:  ${params.reads1}"
+    log.info "params.reads2:  ${params.reads2}"
     log.info "params.bwa_index:  ${params.bwa_index}"
     log.info "params.genomefa:  ${params.genomefa}"
+
 
     ch_reads_lane1 = Channel
         .fromFilePairs(params.reads1, checkIfExists: true)
         .ifEmpty { error "No matching reads files found: ${params.reads1}" }
         .map { tuple -> [ [ id: tuple[0] ], tuple[1] ] }
 
-
     ch_reads_lane2 = Channel
         .fromFilePairs(params.reads2, checkIfExists: true)
         .ifEmpty { error "No matching reads files found: ${params.reads2}" }
         .map { tuple -> [ [ id: tuple[0] ], tuple[1] ] }
-
-ch_reads_lane1.view { meta, reads ->
-    log.info "Lane 1 sample ID: ${meta.id}"
-    return [meta, reads]
-}
-
 
     ch_bwa_index_archive = Channel.fromPath(params.bwa_index)
         .ifEmpty { error "No matching bwa index files found: ${params.bwa_index}"}
@@ -148,19 +139,14 @@ ch_reads_lane1.view { meta, reads ->
     ch_mosdepth_bed = Channel.fromPath(params.mosdepth_bed)
             .ifEmpty { error "Mosdepth BED file not found: ${params.mosdepth_bed}" }
 
-
-
     /*
     ------------------------------------------
     Step 2: Extract (untar) bwa index
     ------------------------------------------
     */
     log.info "Starting BWA index extraction"
-
     EXTRACT_BWA_INDEX(ch_bwa_index_archive)
     ch_bwa_index = EXTRACT_BWA_INDEX.out.index_files.map { file -> [[:], file] }
-    //ch_bwa_index = EXTRACT_BWA_INDEX.out.collect().map { files -> [[:], files] }
-    
     log.info "BWA index extraction finished"
 
 
@@ -171,41 +157,26 @@ ch_reads_lane1.view { meta, reads ->
     */
     log.info "Starting BWA MEM process"
 
-   // BWA_MEM(
-   // ch_reads,
-   // ch_bwa_index, 
-   // ch_fasta, 
-   // false
-   // )   
     // Run BWA_MEM separately on each lane
-    
     BWA_MEM_LANE1(ch_reads_lane1, ch_bwa_index, ch_fasta, false)
     BWA_MEM_LANE2(ch_reads_lane2, ch_bwa_index, ch_fasta, false)
-    //ch_reads = Channel
-    //    .fromFilePairs(params.reads, checkIfExists: true)
-    //    .map { sample_id, files -> 
-    //        def meta = [id: sample_id]
-    //        [meta, files]
-    //    }
-   
-    MERGE_BAM(BWA_MEM_LANE1.out.bam, BWA_MEM_LANE2.out.bam)
-
-    ch_bam_to_sort = MERGE_BAM.out.map { meta, bam ->
-        def new_meta = meta + [ id: "${meta.id}.sorted" ]
-        [ new_meta, bam ]
-    }
-
-
-    //ch_bam_to_sort = BWA_MEM.out.bam.map { meta, bam ->
-    //        def new_meta = meta + [id: "${meta.id}.sorted"]
-    //        [ new_meta, bam ]
-    //    }
-    log.info "Finished BWA MEM process"
-
 
     /*
     ------------------------------------------
-    Step 4: Sort BAM Files with SAMTOOLS_SORT
+    Step 4: Join BAMs for merging
+    ------------------------------------------
+    */
+    MERGE_BAM(BWA_MEM_LANE1.out.bam, BWA_MEM_LANE2.out.bam)
+    ch_bam_to_sort = MERGE_BAM.out.map { meta, bam ->
+            def new_meta = meta + [ id: "${meta.id}.sorted" ]
+            [ new_meta, bam ]
+        }
+
+    log.info "Finished BWA MEM process"
+
+    /*
+    ------------------------------------------
+    Step 5: Sort BAM Files with SAMTOOLS_SORT
     ------------------------------------------
     */
     log.info "Starting Samtools sorting and indexing"
@@ -217,7 +188,7 @@ ch_reads_lane1.view { meta, reads ->
 
     /*
     ------------------------------------------
-    Step 5: Index BAM Files with SAMTOOLS_INDEX
+    Step 6: Index BAM Files with SAMTOOLS_INDEX
     ------------------------------------------
     */
     log.info "SAMTOOLS_SORT.out.bam:  ${SAMTOOLS_SORT.out.bam}"
@@ -229,11 +200,9 @@ ch_reads_lane1.view { meta, reads ->
     }
     log.info "Finished Samtools sorting and indexing"
 
-
-
     /*
     ------------------------------------------
-    Step 6: Run Mosdepth
+    Step 7: Run Mosdepth
     ------------------------------------------
     */
 
@@ -250,7 +219,7 @@ ch_reads_lane1.view { meta, reads ->
 
     /*
     ------------------------------------------
-    Step 7: Prepare inputs for cgppindel
+    Step 8: Prepare inputs for cgppindel
     ------------------------------------------
     */
     ch_genomefa = Channel.fromPath(params.genomefa)
@@ -282,7 +251,7 @@ ch_reads_lane1.view { meta, reads ->
 
     /*
     ------------------------------------------
-    Step 8: run cgppindel
+    Step 9: run cgppindel
     ------------------------------------------
     */
     runCgpPindel(
@@ -300,10 +269,6 @@ ch_reads_lane1.view { meta, reads ->
         params.assembly,
         params.seqtype
     )
-
-
-
-
     emit:
         bam = SAMTOOLS_SORT.out.bam
         bai = SAMTOOLS_INDEX.out.bai
