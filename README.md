@@ -20,6 +20,5 @@ dx run applet-xxxx -inextflow_run_opts='-profile docker' \
 --unmatched='dx://project-xxxx:/Folder/file.gff3.gz' 
 --simrep='dx://project-xxxx:/Folder/file.bed.gz' 
 --simrep_index='dx://project-xxxx:/Folder/file.bed.gz.tbi' 
---filter='dx://project-xxxx:/Folder/file.lst'" \
---tag XXXX --instance-type XXXX
+--filter='dx://project-xxxx:/Folder/file.lst'" 
 ```
