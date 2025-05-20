@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    eastgenomics/mini_uranus_just_bwamem
+    eastgenomics/uranus_nf_core_mini
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/eastgenomics/mini_uranus_just_bwamem
+    Github : https://github.com/eastgenomics/uranus_nf_core_mini
 ----------------------------------------------------------------------------------------
 */
 
