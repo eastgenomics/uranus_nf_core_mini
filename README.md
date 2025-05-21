@@ -3,7 +3,7 @@ A mini uranus mostly nf-core pipeline that incorporates mosdepth, cggpindel (not
 
 # Example Code to build the dnanexus applet
 ```
-dx build --nextflow uranus_nf_core_mini --destination project-xxxx --extra-args '{"access":{"network": ["*"], "allProjects":"VIEW", "project":"UPLOAD"}}' --overwrite 
+dx build --nextflow uranus_nf_core_mini --destination project-xxxx --extra-args '{"access":{"network": ["*"], "allProjects":"VIEW", "project":"UPLOAD"}}'
 ```
 # Example Code to run this pipeline on DNAnexus:
 ```

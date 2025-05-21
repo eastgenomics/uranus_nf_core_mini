@@ -215,8 +215,6 @@ workflow MINI_URANUS {
 
     // Run MOSDEPTH
     MOSDEPTH(ch_mosdepth_input, ch_fasta)
-
-
     /*
     ------------------------------------------
     Step 8: Prepare inputs for cgppindel
