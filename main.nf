@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    eastgenomics/uranus_nf_core_mini
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/eastgenomics/uranus_nf_core_mini
 ----------------------------------------------------------------------------------------
 */
@@ -10,23 +12,37 @@
     IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
 include { MINI_URANUS  } from './workflows/mini_uranus'
 
+
+/*
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NAMED WORKFLOWS FOR PIPELINE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
 //
-// WORKFLOW: Run main analysis pipeline
+// WORKFLOW: Run main analysis pipeline depending on type of input
 //
 workflow EASTGENOMICS_MINI_URANUS {
+
+    take:
+
     main:
 
     //
     // WORKFLOW: Run pipeline
     //
-    log.info "starting mini_uranus"
+    MINI_URANUS() 
+    log.info "starting input prep"
+    log.info "input prep"
 
-    MINI_URANUS()
 
-    log.info "mini_uranus started"
 }
+
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,13 +53,10 @@ workflow EASTGENOMICS_MINI_URANUS {
 workflow {
 
     main:
-    //
-    // WORKFLOW: Run main workflow
-    //
     EASTGENOMICS_MINI_URANUS (
     )
-    log.info "pipeline_completed"
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
